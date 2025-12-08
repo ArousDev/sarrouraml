@@ -18,6 +18,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import RidgeClassifier, LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
@@ -411,6 +412,7 @@ def render_colorful_table(df: pd.DataFrame, table_id: str = ""):
     st.markdown(html, unsafe_allow_html=True)
 
 
+@st.cache_resource
 def train_models(df: pd.DataFrame):
     # Split features / target
     feature_cols = [c for c in df.columns if c != "label"]
@@ -464,14 +466,14 @@ def train_models(df: pd.DataFrame):
         [
             ("scaler", StandardScaler()),
             ("poly_features", PolynomialFeatures(degree=2, include_bias=False)),
-            ("model", LogisticRegression(multi_class='multinomial', solver='lbfgs', max_iter=1000, random_state=42)),
+            ("model", LogisticRegression(solver='lbfgs', max_iter=1000, random_state=42)),
         ]
     )
 
     models_cls["Logistic Regression (Binary)"] = Pipeline(
         [
             ("scaler", StandardScaler()),
-            ("model", LogisticRegression(multi_class='ovr', solver='liblinear', max_iter=1000, random_state=42)),
+            ("model", OneVsRestClassifier(LogisticRegression(solver='liblinear', max_iter=1000, random_state=42))),
         ]
     )
 
@@ -662,7 +664,331 @@ def get_crop_recommendations(input_df, models_cls, label_encoder, top_n=3):
     return recommendations_df.head(top_n), all_predictions
 
 
-def main():
+def landing_page():
+    """Beautiful landing page with introduction and navigation button."""
+    st.set_page_config(
+        page_title="Smart Agriculture – Crop Recommendation",
+        page_icon="🌾",
+        layout="wide",
+    )
+    
+    # Custom CSS for landing page
+    st.markdown(
+        """
+        <style>
+        /* Animated gradient background */
+        .stApp {
+            background: linear-gradient(-45deg, #fdfbfb, #e0f7fa, #f1f8e9, #fff3e0, #f3e5f5, #e8f5e9);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Landing page hero section */
+        .landing-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .landing-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            animation: titleFloat 3s ease-in-out infinite;
+            text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .landing-subtitle {
+            font-size: 1.8rem;
+            color: #4a5568;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            line-height: 1.8;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        /* Floating animated plants and seeds */
+        .floating-icons {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.7;
+            animation: floatAround 20s infinite ease-in-out;
+        }
+        
+        .floating-icon:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 15s;
+        }
+        
+        .floating-icon:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+            animation-duration: 18s;
+        }
+        
+        .floating-icon:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+            animation-duration: 22s;
+        }
+        
+        .floating-icon:nth-child(4) {
+            top: 50%;
+            right: 10%;
+            animation-delay: 1s;
+            animation-duration: 16s;
+        }
+        
+        .floating-icon:nth-child(5) {
+            bottom: 20%;
+            right: 25%;
+            animation-delay: 3s;
+            animation-duration: 19s;
+        }
+        
+        .floating-icon:nth-child(6) {
+            top: 70%;
+            left: 15%;
+            animation-delay: 5s;
+            animation-duration: 21s;
+        }
+        
+        .floating-icon:nth-child(7) {
+            top: 15%;
+            left: 50%;
+            animation-delay: 1.5s;
+            animation-duration: 17s;
+        }
+        
+        .floating-icon:nth-child(8) {
+            bottom: 15%;
+            left: 40%;
+            animation-delay: 2.5s;
+            animation-duration: 20s;
+        }
+        
+        .floating-icon:nth-child(9) {
+            top: 60%;
+            right: 30%;
+            animation-delay: 0.5s;
+            animation-duration: 14s;
+        }
+        
+        .floating-icon:nth-child(10) {
+            bottom: 40%;
+            right: 20%;
+            animation-delay: 3.5s;
+            animation-duration: 23s;
+        }
+        
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(30px, -50px) rotate(90deg) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, -80px) rotate(180deg) scale(0.9);
+            }
+            75% {
+                transform: translate(-40px, -30px) rotate(270deg) scale(1.05);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg) scale(1);
+            }
+        }
+        
+        .landing-hero {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .landing-button-container {
+            margin-top: 4rem;
+            animation: fadeInUp 1.2s ease-out;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .landing-button-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+        
+        .landing-button-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            padding: 1.2rem 3.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .landing-button-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .landing-button-custom:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            color: white !important;
+        }
+        
+        .landing-button-custom:hover::before {
+            left: 100%;
+        }
+        
+        .landing-button-custom:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+        
+        /* Style pour le bouton Streamlit */
+        .landing-page .stButton > button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            padding: 1.2rem 3.5rem !important;
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
+            border: none !important;
+            border-radius: 50px !important;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            width: 100% !important;
+        }
+        
+        .landing-page .stButton > button:hover {
+            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6) !important;
+            background: linear-gradient(135deg, #7c8ff5 0%, #8b5fbf 100%) !important;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 30px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        /* Hide default Streamlit elements on landing page */
+        .landing-page [data-testid="stSidebar"] {
+            display: none;
+        }
+        
+        .landing-page [data-testid="stHeader"] {
+            display: none;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # Landing page content
+    st.markdown('<div class="landing-page">', unsafe_allow_html=True)
+    
+    # Floating animated icons (plants and seeds)
+    st.markdown(
+        """
+        <div class="floating-icons">
+            <div class="floating-icon">🌾</div>
+            <div class="floating-icon">🌱</div>
+            <div class="floating-icon">🌿</div>
+            <div class="floating-icon">🌽</div>
+            <div class="floating-icon">🌻</div>
+            <div class="floating-icon">🌷</div>
+            <div class="floating-icon">🌰</div>
+            <div class="floating-icon">🌾</div>
+            <div class="floating-icon">🌱</div>
+            <div class="floating-icon">🌿</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    st.markdown(
+        """
+        <div class="landing-hero">
+            <div class="landing-title">🌾 Smart Agriculture AI Lab</div>
+            <div class="landing-subtitle">
+                Découvrez l'avenir de l'agriculture intelligente avec notre plateforme d'IA avancée.<br><br>
+                Obtenez des recommandations de cultures personnalisées basées sur vos données environnementales 
+                en utilisant 8 modèles de machine learning avancés (SVM, KNN, Random Forest, Decision Tree, 
+                Linear/Polynomial/Logistic Regression, XGBoost) et 3 algorithmes de clustering (KMeans, ACH, DBSCAN).<br><br>
+                Explorez des visualisations interactives et obtenez des recommandations intelligentes 
+                avec scores de confiance pour optimiser vos décisions agricoles.
+            </div>
+            
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # Button to navigate to main app
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        button_clicked = st.button("🚀 Commencer l'Exploration", type="primary", use_container_width=True, key="landing_button")
+        if button_clicked:
+            st.session_state['show_main_app'] = True
+            st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def main_app():
+    """Main application interface."""
     st.set_page_config(
         page_title="Smart Agriculture – Crop Recommendation",
         page_icon="🌾",
@@ -1186,15 +1512,6 @@ def main():
             st.write(df.head())
             st.write("Shape:", df.shape)
 
-    # DBSCAN Parameters Section
-    with st.container():
-        st.markdown("### ⚙️ DBSCAN Parameters")
-        st.markdown("#### Current DBSCAN Parameters")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("EPS", 4.343)
-        with col2:
-            st.metric("Min Samples", 5)
 
     # Layout: inputs first, then results below
     st.markdown("### 🤖 Crop prediction & clustering")
@@ -1360,6 +1677,19 @@ def main():
                     st.markdown("---")
         else:
             st.info("Select at least one clustering model in the sidebar.")
+
+
+def main():
+    """Main entry point - shows landing page or main app based on session state."""
+    # Initialize session state for navigation
+    if 'show_main_app' not in st.session_state:
+        st.session_state['show_main_app'] = False
+    
+    # Show landing page or main app
+    if not st.session_state['show_main_app']:
+        landing_page()
+    else:
+        main_app()
 
 
 if __name__ == "__main__":
