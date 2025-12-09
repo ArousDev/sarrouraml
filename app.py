@@ -958,20 +958,18 @@ def landing_page():
         unsafe_allow_html=True,
     )
     
-    st.markdown(
+     st.markdown(
         """
         <div class="landing-hero">
             <div class="landing-title">🌾 Smart Agriculture AI Lab</div>
             <div class="landing-subtitle">
-                Découvrez l'avenir de l'agriculture intelligente avec notre plateforme d'IA avancée.<br><br>
-                Obtenez des recommandations de cultures personnalisées basées sur vos données environnementales 
-                en utilisant 8 modèles de machine learning avancés (SVM, KNN, Random Forest, Decision Tree, 
-                Linear/Polynomial/Logistic Regression, XGBoost) et 3 algorithmes de clustering (KMeans, ACH, DBSCAN).<br><br>
-                Explorez des visualisations interactives et obtenez des recommandations intelligentes 
-                avec scores de confiance pour optimiser vos décisions agricoles.
-            </div>
-            
-        </div>
+              Discover the future of smart agriculture with our advanced AI platform.
+<br><br>
+Get personalized crop recommendations based on your environmental data using 8 advanced machine learning models .
+<br><br>
+Explore interactive visualizations and receive intelligent recommendations with confidence scores to optimize your agricultural decisions.
+          
+         
         """,
         unsafe_allow_html=True,
     )
@@ -1665,10 +1663,10 @@ def main_app():
                     
                     # Afficher l'information du cluster assigné
                     if cluster_label == -1:
-                        st.warning(f"⚠️ **Point d'entrée assigné à:** Noise (Cluster -1)")
-                        st.info("Ce point est considéré comme un point de bruit (outlier) par DBSCAN.")
+                        st.warning(f"⚠️ **Entry point assigned to:** Noise (Cluster -1)")
+                        st.info("This point is considered as Noise (outlier) by DBSCAN.")
                     else:
-                        st.success(f"✅ **Point d'entrée assigné à:** Cluster {int(cluster_label)}")
+                        st.success(f"✅ **Entry point assigned to:** Cluster {int(cluster_label)}")
                     
                     st.markdown("---")  # Séparateur entre les modèles
                     
